@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="appsettings.Development.json" />
+    <None Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Fail from Microsoft to name this package something with AspNetCore :-/ -->
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.3.0" />
+    <PackageReference Include="Azure.Identity" Version="1.10.4" />
+    <PackageReference Include="Codebelt.Bootstrapper.Worker" Version="1.2.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
+    <PackageReference Include="Savvyio.Extensions.SimpleQueueService" Version="2.0.0-preview.6" />
+    <PackageReference Include="Savvyio.Extensions.DependencyInjection.SimpleQueueService" Version="2.0.0-preview.6" />
+    <PackageReference Include="Savvyio.Extensions.Text.Json" Version="2.0.0-preview.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Wish.JournalApplication\Wish.JournalApplication.csproj" />
+    <ProjectReference Include="..\Wish.JournalAzureTableStorage\Wish.JournalAzureTableStorage.csproj" />
+  </ItemGroup>
+
+</Project>

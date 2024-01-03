@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Wish.JournalEventSvc": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Savvyio.Commands" Version="2.0.0-preview.6" />
+    <PackageReference Include="Savvyio.EventDriven" Version="2.0.0-preview.6" />
+    <PackageReference Include="Savvyio.Extensions.DependencyInjection.Domain" Version="2.0.0-preview.6" />
+    <PackageReference Include="Savvyio.Extensions.Dispatchers" Version="2.0.0-preview.6" />
+    <PackageReference Include="Savvyio.Extensions.EFCore" Version="2.0.0-preview.6" />
+    <PackageReference Include="Savvyio.Queries" Version="2.0.0-preview.6" />
+    <PackageReference Include="Cuemon.AspNetCore.App" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Wish.Services\Wish.Services.csproj" />
+    <ProjectReference Include="..\Wish\Wish.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Wish.StatusCommandSvc": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
