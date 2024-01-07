@@ -159,7 +159,7 @@ namespace Wish.JournalApi
 
 			app.UseBasicAuthentication(o =>
 			{
-				o.RequireSecureConnection = Environment.IsProduction();
+				o.RequireSecureConnection = false;
 				o.Authenticator = (username, password) =>
 				{
 					var json = Configuration["BasicAuthentication"]!;
