@@ -30,7 +30,7 @@ namespace Wish.JournalApi.Handlers
 
         private async Task<JournalEntryViewModel> GetJournalEntryAsync(GetJournalEntry query)
         {
-            var projection = await _journalEntryDataStore.GetByIdAsync(new[] { query.Id, query.EntryId });
+            var projection = await _journalEntryDataStore.GetByIdAsync(new[] { query.Id, query.EntryId }).ConfigureAwait(false);
             return new JournalEntryViewModel()
             {
                 Created = projection.Created,
@@ -79,7 +79,7 @@ namespace Wish.JournalApi.Handlers
 
         private async Task<JournalViewModel> GetJournalAsync(GetJournal query)
         {
-            var projection = await _journalDataStore.GetByIdAsync(new[] { query.OwnerId, query.JournalId });
+            var projection = await _journalDataStore.GetByIdAsync(new[] { query.OwnerId, query.JournalId }).ConfigureAwait(false);
             return new JournalViewModel()
             {
                 Created = projection.Created,

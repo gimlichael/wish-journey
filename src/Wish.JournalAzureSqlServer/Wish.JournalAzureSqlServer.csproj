@@ -8,8 +8,8 @@
     <PackageReference Include="Cuemon.Core.App" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
-    <PackageReference Include="Savvyio.Extensions.EFCore" Version="2.0.0-preview.6" />
-    <PackageReference Include="Savvyio.Extensions.DependencyInjection.EFCore" Version="2.0.0-preview.6" />
+    <PackageReference Include="Savvyio.Extensions.EFCore" Version="2.0.0-preview.13" />
+    <PackageReference Include="Savvyio.Extensions.DependencyInjection.EFCore" Version="2.0.0-preview.13" />
   </ItemGroup>
 
   <ItemGroup>

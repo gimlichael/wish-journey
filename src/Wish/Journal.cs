@@ -23,7 +23,7 @@ namespace Wish
             OwnerId = ownerId;
             Title = title;
             Description = description;
-            Created = DateTime.UtcNow;;
+            Created = DateTime.UtcNow;
             AddEvent(new JournalInitiated(this));
         }
 

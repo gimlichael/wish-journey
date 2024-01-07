@@ -1,4 +1,5 @@
 ﻿using Cuemon.Extensions;
+using Cuemon.Extensions.Collections.Generic;
 using Savvyio.Commands;
 using Savvyio.Commands.Messaging;
 using Savvyio.Extensions.DependencyInjection.Messaging;
@@ -18,8 +19,8 @@ namespace Wish.JournalEventSvc.Handlers
 
 		protected override void RegisterDelegates(IFireForgetRegistry<ICommand> handlers)
 		{
-			handlers.RegisterAsync<CreateStatus>(command => _commandQueue.SendAsync(command.ToMessage($"urn:status:id:{command.CorrelationId:N}".ToUri(), "journaleventsvc.status.create")));
-			handlers.RegisterAsync<UpdateStatus>(command => _commandQueue.SendAsync(command.ToMessage($"urn:status:id:{command.CorrelationId:N}".ToUri(), "journaleventsvc.status.update")));
+			handlers.RegisterAsync<CreateStatus>(command => _commandQueue.SendAsync(command.ToMessage($"urn:status:id:{command.CorrelationId:N}".ToUri(), "journaleventsvc.status.create").Yield()));
+			handlers.RegisterAsync<UpdateStatus>(command => _commandQueue.SendAsync(command.ToMessage($"urn:status:id:{command.CorrelationId:N}".ToUri(), "journaleventsvc.status.update").Yield()));
 		}
 	}
 }

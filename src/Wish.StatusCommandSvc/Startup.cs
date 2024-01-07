@@ -35,7 +35,7 @@ namespace Wish.StatusCommandSvc
 
 	        services.Add<JsonMarshaller>(o => o.Lifetime = ServiceLifetime.Singleton);
 
-	        services.Configure<AmazonCommandQueueOptions<StatusCommandHandler>>(o =>
+	        services.ConfigureTriple<AmazonCommandQueueOptions<StatusCommandHandler>>(o =>
 	        {
 		        o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
 		        o.Endpoint = RegionEndpoint.EUWest1;

@@ -41,7 +41,7 @@ namespace Wish.JournalCommandSvc
 
 	        services.Add<JsonMarshaller>(o => o.Lifetime = ServiceLifetime.Singleton);
 
-	        services.Configure<AmazonCommandQueueOptions<JournalCommandHandler>>(o =>
+	        services.ConfigureTriple<AmazonCommandQueueOptions<JournalCommandHandler>>(o =>
 	        {
 		        o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
 		        o.Endpoint = RegionEndpoint.EUWest1;
@@ -49,7 +49,7 @@ namespace Wish.JournalCommandSvc
 	        });
 	        services.Add<AmazonCommandQueue<JournalCommandHandler>>(o => o.Lifetime = ServiceLifetime.Scoped);
 
-	        services.Configure<AmazonCommandQueueOptions<StatusCommandHandler>>(o =>
+	        services.ConfigureTriple<AmazonCommandQueueOptions<StatusCommandHandler>>(o =>
 	        {
 		        o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
 		        o.Endpoint = RegionEndpoint.EUWest1;
@@ -57,7 +57,7 @@ namespace Wish.JournalCommandSvc
 	        });
 	        services.Add<AmazonCommandQueue<StatusCommandHandler>>(o => o.Lifetime = ServiceLifetime.Scoped);
 
-	        services.Configure<AmazonEventBusOptions<JournalEventHandler>>(o =>
+	        services.ConfigureTriple<AmazonEventBusOptions<JournalEventHandler>>(o =>
 	        {
 		        o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
 		        o.Endpoint = RegionEndpoint.EUWest1;

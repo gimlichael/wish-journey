@@ -6,10 +6,10 @@ namespace Wish.JournalAzureSqlServer
 {
     public class JournalDataSource : EfCoreDataSource
     {
-        public JournalDataSource(IConfiguration configuration) : base(o =>
+        public JournalDataSource(IConfiguration configuration) : base(new EfCoreDataSourceOptions
         {
-            o.ContextConfigurator = b => b.UseSqlServer(configuration.GetConnectionString("Journal"));
-            o.ModelConstructor = mb => mb.AddJournal();
+            ContextConfigurator = b => b.UseSqlServer(configuration.GetConnectionString("Journal")),
+            ModelConstructor = mb => mb.AddJournal()
         })
         {
         }

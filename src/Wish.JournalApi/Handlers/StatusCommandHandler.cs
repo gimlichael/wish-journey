@@ -1,4 +1,5 @@
 ﻿using Cuemon.Extensions;
+using Cuemon.Extensions.Collections.Generic;
 using Savvyio.Commands;
 using Savvyio.Commands.Messaging;
 using Savvyio.Extensions.DependencyInjection.Messaging;
@@ -18,7 +19,7 @@ namespace Wish.JournalApi.Handlers
 
 		protected override void RegisterDelegates(IFireForgetRegistry<ICommand> handlers)
 		{
-			handlers.RegisterAsync<CreateStatus>(command => _commandQueue.SendAsync(command.ToMessage($"urn:status:id:{command.CorrelationId:N}".ToUri(), "journalapi.status.create")));
+			handlers.RegisterAsync<CreateStatus>(command => _commandQueue.SendAsync(command.ToMessage($"urn:status:id:{command.CorrelationId:N}".ToUri(), "journalapi.status.create").Yield()));
 		}
 	}
 }

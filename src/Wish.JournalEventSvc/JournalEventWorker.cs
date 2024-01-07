@@ -48,7 +48,7 @@ namespace Wish.JournalEventSvc
 					_logger.LogError(e, e.Message);
 				}
 
-				await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+				await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
 			}
 		}
 	}

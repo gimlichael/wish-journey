@@ -37,8 +37,7 @@ namespace Wish.StatusCommandSvc
 
 				try
 				{
-					var messages = await _commandQueue.ReceiveAsync().ConfigureAwait(false);
-					foreach (var message in messages)
+					await foreach (var message in _commandQueue.ReceiveAsync(o => o.CancellationToken = stoppingToken).ConfigureAwait(false))
 					{
 						_logger.LogInformation("Processing: {message}", message);
 						await _mediator.CommitAsync(message.Data).ConfigureAwait(false);
@@ -49,7 +48,7 @@ namespace Wish.StatusCommandSvc
 					_logger.LogError(e, e.Message);
 				}
 
-				await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+				await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
 			}
 		}
 	}

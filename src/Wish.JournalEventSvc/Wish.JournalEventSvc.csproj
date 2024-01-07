@@ -31,10 +31,10 @@
     <PackageReference Include="Azure.Identity" Version="1.10.4" />
     <PackageReference Include="Codebelt.Bootstrapper.Worker" Version="1.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
-    <PackageReference Include="Savvyio.Extensions.SimpleQueueService" Version="2.0.0-preview.6" />
-    <PackageReference Include="Savvyio.Extensions.DependencyInjection.SimpleQueueService" Version="2.0.0-preview.6" />
-    <PackageReference Include="Savvyio.Extensions.Text.Json" Version="2.0.0-preview.6" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
+    <PackageReference Include="Savvyio.Extensions.SimpleQueueService" Version="2.0.0-preview.13" />
+    <PackageReference Include="Savvyio.Extensions.DependencyInjection.SimpleQueueService" Version="2.0.0-preview.13" />
+    <PackageReference Include="Savvyio.Extensions.Text.Json" Version="2.0.0-preview.13" />
   </ItemGroup>
 
   <ItemGroup>

@@ -131,7 +131,8 @@ namespace Wish.JournalApi.Controllers.V1
 
             await _mediator.CommitAsync(new CreateStatus(command.OwnerId, command.GetCorrelationId())
             {
-                Created = DateTime.UtcNow,
+                Action = StatusAction.Create,
+				Created = DateTime.UtcNow,
                 Message = "Creating a new entry for a journal.",
                 Endpoint = Request.GetDisplayUrl()
             }).ConfigureAwait(false);
