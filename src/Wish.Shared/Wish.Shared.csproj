@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Cuemon.Core" Version="8.0.0" />
+    <PackageReference Include="Cuemon.Runtime.Caching" Version="8.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 

@@ -19,6 +19,7 @@ using Cuemon.Extensions.AspNetCore.Mvc.Filters;
 using Cuemon.Extensions.AspNetCore.Mvc.Formatters.Text.Json;
 using Cuemon.Extensions.DependencyInjection;
 using Cuemon.Extensions.Hosting;
+using Cuemon.Extensions.Runtime.Caching;
 using Cuemon.Extensions.Swashbuckle.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -157,23 +158,28 @@ namespace Wish.JournalApi
 
 			app.UseApiKeySentinel(o => o.AllowedKeys.Add(Configuration["XApiKey"]));
 
+			var json = Configuration["BasicAuthentication"]!;
+			var credentials = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+			var ownerRepository = GlobalCaching.Cache.Memoize(TimeSpan.FromHours(8), new Func<string, Guid?>(username =>
+			{
+				using (var scope = app.ApplicationServices.CreateScope())
+				{
+					return scope.ServiceProvider.GetRequiredService<IOwnerRepository>().FindAllAsync(owner => owner.EmailAddress == username).SingleOrDefaultAsync().GetAwaiter().GetResult()?.Id;
+				}
+			}));
+
 			app.UseBasicAuthentication(o =>
 			{
 				o.RequireSecureConnection = false;
 				o.Authenticator = (username, password) =>
 				{
-					var json = Configuration["BasicAuthentication"]!;
-					var credentials = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
 					if (credentials.Any(pair => pair.Key == username && pair.Value == password))
 					{
-						using (var scope = app.ApplicationServices.CreateScope())
+						var ownerId = ownerRepository(username);
+						if (ownerId.HasValue)
 						{
-							var owner = scope.ServiceProvider.GetRequiredService<IOwnerRepository>().FindAllAsync(owner => owner.EmailAddress == username).SingleOrDefaultAsync().GetAwaiter().GetResult();
-							if (owner != null)
-							{
-								logger.LogInformation("Successful authentication for '{username}'.", username);
-								return new ClaimsPrincipal(new ClaimsIdentity(Arguments.Yield(new Claim("OwnerId", owner.Id.ToString("N"), ClaimValueTypes.String))));
-							}
+							logger.LogInformation("Successful authentication for '{username}'.", username);
+							return new ClaimsPrincipal(new ClaimsIdentity(Arguments.Yield(new Claim("OwnerId", ownerId.Value.ToString("N"), ClaimValueTypes.String))));
 						}
 					}
 					logger.LogWarning("Failed authentication attempt for '{username}'.", username);
