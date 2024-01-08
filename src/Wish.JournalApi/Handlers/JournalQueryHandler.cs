@@ -30,28 +30,29 @@ namespace Wish.JournalApi.Handlers
 
         private async Task<JournalEntryViewModel> GetJournalEntryAsync(GetJournalEntry query)
         {
-            var projection = await _journalEntryDataStore.GetByIdAsync(new[] { query.Id, query.EntryId }).ConfigureAwait(false);
+            await _journalDataStore.GetByIdAsync(new[] { query.OwnerId, query.JournalId }).ConfigureAwait(false); // safeguard; throws 404 if owner and journal is mismatch
+			var entry = await _journalEntryDataStore.GetByIdAsync(new[] { query.JournalId, query.EntryId }).ConfigureAwait(false);
             return new JournalEntryViewModel()
             {
-                Created = projection.Created,
-                Modified = projection.Modified,
-                Notes = projection.Notes,
-                Coordinates = new Coordinates(projection.CoordinatesLatitude, projection.CoordinatesLongitude),
+                Created = entry.Created,
+                Modified = entry.Modified,
+                Notes = entry.Notes,
+                Coordinates = new Coordinates(entry.CoordinatesLatitude, entry.CoordinatesLongitude),
                 Weather = new Weather
                 {
-                    Condition = projection.WeatherCondition,
-                    ConditionCode = projection.WeatherConditionCode,
-                    WindSpeed = projection.WeatherWindSpeed,
-                    Humidity = projection.WeatherHumidity,
-                    Temperature = projection.WeatherTemperature,
-                    TemperatureApparent = projection.WeatherTemperatureApparent,
-                    WindGust = projection.WeatherWindGust
+                    Condition = entry.WeatherCondition,
+                    ConditionCode = entry.WeatherConditionCode,
+                    WindSpeed = entry.WeatherWindSpeed,
+                    Humidity = entry.WeatherHumidity,
+                    Temperature = entry.WeatherTemperature,
+                    TemperatureApparent = entry.WeatherTemperatureApparent,
+                    WindGust = entry.WeatherWindGust
                 },
                 Location = new Location
                 {
-                    City = projection.LocationCity,
-                    Country = projection.LocationCountry,
-                    Query = projection.LocationQuery
+                    City = entry.LocationCity,
+                    Country = entry.LocationCountry,
+                    Query = entry.LocationQuery
                 }
             };
         }

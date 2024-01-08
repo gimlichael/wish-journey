@@ -6,13 +6,16 @@ namespace Wish.JournalApplication.Queries
 {
     public record GetJournalEntry : Query<JournalEntryViewModel>
     {
-        public GetJournalEntry(string id, string entryId)
+        public GetJournalEntry(string ownerId, string journalId, string entryId)
         {
-            Id = Guid.Parse(id);
+			OwnerId = Guid.Parse(ownerId);
+			JournalId = Guid.Parse(journalId);
             EntryId = Guid.Parse(entryId);
         }
 
-        public Guid Id { get; }
+        public Guid OwnerId { get; }
+
+        public Guid JournalId { get; }
 
         public Guid EntryId { get; }
     }

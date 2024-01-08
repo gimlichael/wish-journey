@@ -157,7 +157,7 @@ namespace Wish.JournalApi.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<JournalEntryViewModel>> GetEntry([FromRoute] string id, [FromRoute] string entryId)
         {
-            return Ok(await _mediator.QueryAsync(new GetJournalEntry(id, entryId)));
+            return Ok(await _mediator.QueryAsync(new GetJournalEntry(HttpContext.User.Claims.OwnerIdOrDefault(), id, entryId)));
         }
 
         [HttpPut("{id}/entries/{entryId}")]
