@@ -2,8 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Codebelt.Bootstrapper;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Savvyio;
 using Savvyio.Commands;
 using Savvyio.Extensions;
 using Savvyio.Extensions.DependencyInjection.Messaging;
@@ -18,8 +20,12 @@ namespace Wish.StatusCommandSvc
 		private readonly IPointToPointChannel<ICommand, StatusCommandHandler> _commandQueue;
 		private readonly ILogger<StatusCommandWorker> _logger;
 
-		public StatusCommandWorker(IMediator mediator, IPointToPointChannel<ICommand, StatusCommandHandler> commandQueue, ILogger<StatusCommandWorker> logger)
+		public StatusCommandWorker(IMediator mediator, IPointToPointChannel<ICommand, StatusCommandHandler> commandQueue, ILogger<StatusCommandWorker> logger, IServiceProvider serviceProvider)
 		{
+			BootstrapperLifetime.OnApplicationStartedCallback = () =>
+			{
+				logger.LogInformation("{registeredHandlers}", serviceProvider.GetService<HandlerServicesDescriptor>());
+			};
 			BootstrapperLifetime.OnApplicationStoppingCallback = () =>
 			{
 				_applicationStopping = true;

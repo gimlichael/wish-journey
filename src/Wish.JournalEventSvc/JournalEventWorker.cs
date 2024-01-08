@@ -2,8 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Codebelt.Bootstrapper;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Savvyio;
 using Savvyio.EventDriven;
 using Savvyio.Extensions;
 using Savvyio.Extensions.DependencyInjection.Messaging;
@@ -18,8 +20,12 @@ namespace Wish.JournalEventSvc
 		private readonly IPublishSubscribeChannel<IIntegrationEvent, JournalEventHandler> _eventBus;
 		private readonly ILogger<JournalEventWorker> _logger;
 
-		public JournalEventWorker(IMediator mediator, IPublishSubscribeChannel<IIntegrationEvent, JournalEventHandler> eventBus, ILogger<JournalEventWorker> logger)
+		public JournalEventWorker(IMediator mediator, IPublishSubscribeChannel<IIntegrationEvent, JournalEventHandler> eventBus, ILogger<JournalEventWorker> logger, IServiceProvider serviceProvider)
 		{
+			BootstrapperLifetime.OnApplicationStartedCallback = () =>
+			{
+				logger.LogInformation("{registeredHandlers}", serviceProvider.GetService<HandlerServicesDescriptor>());
+			};
 			BootstrapperLifetime.OnApplicationStoppingCallback = () =>
 			{
 				_applicationStopping = true;
