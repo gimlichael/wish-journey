@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cuemon.AspNetCore.Http;
 using Savvyio.Handlers;
 using Savvyio.Queries;
 using Wish.JournalApplication;
@@ -30,29 +31,29 @@ namespace Wish.JournalApi.Handlers
 
         private async Task<JournalEntryViewModel> GetJournalEntryAsync(GetJournalEntry query)
         {
-            await _journalDataStore.GetByIdAsync(new[] { query.OwnerId, query.JournalId }).ConfigureAwait(false); // safeguard; throws 404 if owner and journal is mismatch
-			var entry = await _journalEntryDataStore.GetByIdAsync(new[] { query.JournalId, query.EntryId }).ConfigureAwait(false);
+			var projection = await _journalEntryDataStore.GetByIdAsync(new[] { query.JournalId, query.EntryId }).ConfigureAwait(false);
+            if (projection.OwnerId != query.OwnerId) { throw new NotFoundException(); } // safeguard; throws 404 if owner and journal is mismatch
             return new JournalEntryViewModel()
             {
-                Created = entry.Created,
-                Modified = entry.Modified,
-                Notes = entry.Notes,
-                Coordinates = new Coordinates(entry.CoordinatesLatitude, entry.CoordinatesLongitude),
+                Created = projection.Created,
+                Modified = projection.Modified,
+                Notes = projection.Notes,
+                Coordinates = new Coordinates(projection.CoordinatesLatitude, projection.CoordinatesLongitude),
                 Weather = new Weather
                 {
-                    Condition = entry.WeatherCondition,
-                    ConditionCode = entry.WeatherConditionCode,
-                    WindSpeed = entry.WeatherWindSpeed,
-                    Humidity = entry.WeatherHumidity,
-                    Temperature = entry.WeatherTemperature,
-                    TemperatureApparent = entry.WeatherTemperatureApparent,
-                    WindGust = entry.WeatherWindGust
+                    Condition = projection.WeatherCondition,
+                    ConditionCode = projection.WeatherConditionCode,
+                    WindSpeed = projection.WeatherWindSpeed,
+                    Humidity = projection.WeatherHumidity,
+                    Temperature = projection.WeatherTemperature,
+                    TemperatureApparent = projection.WeatherTemperatureApparent,
+                    WindGust = projection.WeatherWindGust
                 },
                 Location = new Location
                 {
-                    City = entry.LocationCity,
-                    Country = entry.LocationCountry,
-                    Query = entry.LocationQuery
+                    City = projection.LocationCity,
+                    Country = projection.LocationCountry,
+                    Query = projection.LocationQuery
                 }
             };
         }
