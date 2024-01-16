@@ -21,6 +21,7 @@ using Cuemon.Extensions.DependencyInjection;
 using Cuemon.Extensions.Hosting;
 using Cuemon.Extensions.Runtime.Caching;
 using Cuemon.Extensions.Swashbuckle.AspNetCore;
+using Cuemon.Runtime.Caching;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -160,7 +161,7 @@ namespace Wish.JournalApi
 
 			var json = Configuration["BasicAuthentication"]!;
 			var credentials = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-			var ownerRepository = GlobalCaching.Cache.Memoize(TimeSpan.FromHours(8), new Func<string, Guid?>(username =>
+			var ownerRepository = CachingManager.Cache.Memoize(TimeSpan.FromHours(8), new Func<string, Guid?>(username =>
 			{
 				using (var scope = app.ApplicationServices.CreateScope())
 				{
