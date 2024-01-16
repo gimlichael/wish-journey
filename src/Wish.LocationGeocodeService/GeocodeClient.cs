@@ -70,7 +70,11 @@ namespace Wish.LocationGeocodeService
             {
 	            return municipality.GetString();
             }
-            throw new JsonException($"Unable to locate city information from these 7 properties; city, town, suburb, hamlet, village, district and municipality. Here is the raw address: {jsonElement.GetRawText()}");
+            else if (jsonElement.TryGetProperty("state", out JsonElement state))
+            {
+	            return state.GetString();
+            }
+            throw new JsonException($"Unable to locate city information from these 8 properties; city, town, suburb, hamlet, village, district, municipality and state. Here is the raw address: {jsonElement.GetRawText()}");
         }
     }
 }

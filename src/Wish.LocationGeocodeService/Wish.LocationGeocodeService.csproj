@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cuemon.Extensions.Net" Version="8.0.0" />
+    <PackageReference Include="Cuemon.Extensions.Net" Version="8.1.0-preview" />
   </ItemGroup>
 
   <ItemGroup>
