@@ -1,0 +1,35 @@
+services:
+  localstack:
+    image: localstack/localstack:3.1.0
+    environment:
+      - IMAGE_NAME=localstack/localstack:3.1.0
+      - SERVICES=sns,sqs
+      - DEBUG=0
+      - DISABLE_CORS_CHECKS=1
+    ports:
+      - '4566-4597:4566-4597'
+    expose:
+      - 4566
+
+  awscli:
+      image: amazon/aws-cli:2.15.18
+      depends_on:
+        - localstack
+      environment:
+        - AWS_DEFAULT_REGION=eu-west-1
+        - AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+        - AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+        - AWS_ENDPOINT_URL=http://localstack:4566
+        - AWS_DEFAULT_OUTPUT=table
+      entrypoint: /bin/sh -c
+      command: >
+        "
+            sleep 5s
+            aws sqs create-queue --queue-name wish-journal-status.fifo --attributes FifoQueue=true,ContentBasedDeduplication=false
+            aws sqs create-queue --queue-name wish-journal-event.fifo --attributes FifoQueue=true,ContentBasedDeduplication=false
+            aws sqs create-queue --queue-name wish-journal-command.fifo --attributes FifoQueue=true,ContentBasedDeduplication=false
+            aws sns create-topic --name journal-event.fifo --attributes FifoTopic=true,ContentBasedDeduplication=false
+            aws sns create-topic --name journal-entry-event.fifo --attributes FifoTopic=true,ContentBasedDeduplication=false
+            aws sns subscribe --topic-arn arn:aws:sns:eu-west-1:000000000000:journal-event.fifo --protocol sqs --notification-endpoint arn:aws:sqs:eu-west-1:000000000000:wish-journal-event.fifo
+            aws sns subscribe --topic-arn arn:aws:sns:eu-west-1:000000000000:journal-entry-event.fifo --protocol sqs --notification-endpoint arn:aws:sqs:eu-west-1:000000000000:wish-journal-event.fifo
+        "

@@ -1,10 +1,13 @@
 {
-  "profiles": {
-    "Wish.JournalEventSvc": {
-      "commandName": "Project"
-    },
-    "Docker": {
-      "commandName": "Docker"
+    "profiles": {
+        "Wish.JournalEventSvc": {
+            "commandName": "Project",
+            "environmentVariables": {
+                "DOTNET_ENVIRONMENT": "Development"
+            }
+        },
+        "Docker": {
+            "commandName": "Docker"
+        }
     }
-  }
 }
