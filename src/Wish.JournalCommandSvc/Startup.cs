@@ -16,6 +16,7 @@ using Wish.IpGeolocationService;
 using Wish.JournalAzureSqlServer;
 using Wish.JournalCommandSvc.Handlers;
 using Wish.LocationGeocodeService;
+using Wish.Shared;
 using Wish.WeatherTomorrowService;
 
 namespace Wish.JournalCommandSvc
@@ -34,18 +35,18 @@ namespace Wish.JournalCommandSvc
 	        services.AddSavvyIO(o =>
 	        {
 		        o.EnableHandlerServicesDescriptor()
-			        .UseAutomaticDispatcherDiscovery()
-			        .UseAutomaticHandlerDiscovery()
+                    .UseAutomaticDispatcherDiscovery()
+                    .UseAutomaticHandlerDiscovery()
 			        .AddMediator<Mediator>();
 	        });
 
 	        services.Add<JsonMarshaller>(o => o.Lifetime = ServiceLifetime.Singleton);
 
 	        services.ConfigureTriple<AmazonCommandQueueOptions<JournalCommandHandler>>(o =>
-	        {
+            {
 		        o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
 		        o.Endpoint = RegionEndpoint.EUWest1;
-		        o.SourceQueue = new Uri($"https://sqs.eu-west-1.amazonaws.com/{Configuration["AWS:CallerIdentity"]}/wish-journal-command.fifo");
+		        o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/wish-journal-command.fifo");
 	        });
 	        services.Add<AmazonCommandQueue<JournalCommandHandler>>(o => o.Lifetime = ServiceLifetime.Scoped);
 
@@ -53,7 +54,7 @@ namespace Wish.JournalCommandSvc
 	        {
 		        o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
 		        o.Endpoint = RegionEndpoint.EUWest1;
-		        o.SourceQueue = new Uri($"https://sqs.eu-west-1.amazonaws.com/{Configuration["AWS:CallerIdentity"]}/wish-journal-status.fifo");
+		        o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/wish-journal-status.fifo");
 	        });
 	        services.Add<AmazonCommandQueue<StatusCommandHandler>>(o => o.Lifetime = ServiceLifetime.Scoped);
 
@@ -61,16 +62,28 @@ namespace Wish.JournalCommandSvc
 	        {
 		        o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
 		        o.Endpoint = RegionEndpoint.EUWest1;
-		        o.SourceQueue = new Uri($"https://sqs.eu-west-1.amazonaws.com/{Configuration["AWS:CallerIdentity"]}/wish-journal-event.fifo");
+		        o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/wish-journal-event.fifo");
 	        });
 	        services.Add<AmazonEventBus<JournalEventHandler>>(o => o.Lifetime = ServiceLifetime.Scoped);
 
-	        services.Add<JournalDataSource>(o => o.Lifetime = ServiceLifetime.Scoped);
+	        services.Add<JournalDataSource>(o => o.Lifetime = ServiceLifetime.Scoped)
+                .AddOptions<JournalDataSourceOptions>()
+                .ConfigureTriple(o =>
+                {
+                    o.ConnectionString = Configuration.GetConnectionString("Journal");
+                });
+            services.Add<OwnerRepository>(o => o.Lifetime = ServiceLifetime.Scoped);
 	        services.Add<JournalRepository>(o => o.Lifetime = ServiceLifetime.Scoped);
 	        services.Add<JournalEntryRepository>(o => o.Lifetime = ServiceLifetime.Scoped);
-	        services.Add<GeocodeClient>(o => o.Lifetime = ServiceLifetime.Scoped);
-	        services.Add<WeatherClient>(o => o.Lifetime = ServiceLifetime.Scoped);
-	        services.Add<TimeZoneClient>(o => o.Lifetime = ServiceLifetime.Scoped);
+	        services.Add<GeocodeClient>(o => o.Lifetime = ServiceLifetime.Scoped)
+				.AddOptions<GeocodeClientOptions>()
+				.ConfigureTriple(o => o.ApiKey = Configuration["GeocodeApi"]);
+	        services.Add<WeatherClient>(o => o.Lifetime = ServiceLifetime.Scoped)
+                .AddOptions<WeatherClientOptions>()
+                .ConfigureTriple(o => o.ApiKey = Configuration["TomorrowApi"]);
+	        services.Add<TimeZoneClient>(o => o.Lifetime = ServiceLifetime.Scoped)
+                .AddOptions<TimeZoneClientOptions>()
+                .ConfigureTriple(o => o.ApiKey = Configuration["IpGeolocationApi"]);
 
 	        services.AddHostedService<JournalCommandWorker>();
         }

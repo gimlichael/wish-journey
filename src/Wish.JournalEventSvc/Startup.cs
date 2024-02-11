@@ -14,6 +14,7 @@ using Savvyio.Extensions.SimpleQueueService;
 using Savvyio.Extensions.Text.Json;
 using Wish.JournalAzureTableStorage;
 using Wish.JournalEventSvc.Handlers;
+using Wish.Shared;
 
 namespace Wish.JournalEventSvc
 {
@@ -31,8 +32,8 @@ namespace Wish.JournalEventSvc
 	        services.AddSavvyIO(o =>
 	        {
 		        o.EnableHandlerServicesDescriptor()
-			        .UseAutomaticDispatcherDiscovery()
-			        .UseAutomaticHandlerDiscovery()
+                    .UseAutomaticDispatcherDiscovery()
+                    .UseAutomaticHandlerDiscovery()
 			        .AddMediator<Mediator>();
 	        });
 
@@ -42,20 +43,24 @@ namespace Wish.JournalEventSvc
 	        {
 		        o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
 		        o.Endpoint = RegionEndpoint.EUWest1;
-		        o.SourceQueue = new Uri($"https://sqs.eu-west-1.amazonaws.com/{Configuration["AWS:CallerIdentity"]}/wish-journal-event.fifo");
+		        o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/wish-journal-event.fifo");
 	        });
-	        services.Add<AmazonEventBus<JournalEventHandler>>(o => o.Lifetime = ServiceLifetime.Scoped);
+	        services.Add<AmazonEventBus<JournalEventHandler>>(o => o.Lifetime = ServiceLifetime.Singleton);
 
 	        services.ConfigureTriple<AmazonCommandQueueOptions<StatusCommandHandler>>(o =>
 	        {
 		        o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
 		        o.Endpoint = RegionEndpoint.EUWest1;
-		        o.SourceQueue = new Uri($"https://sqs.eu-west-1.amazonaws.com/{Configuration["AWS:CallerIdentity"]}/wish-journal-status.fifo");
+		        o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/wish-journal-status.fifo");
 	        });
-	        services.Add<AmazonCommandQueue<StatusCommandHandler>>(o => o.Lifetime = ServiceLifetime.Scoped);
+	        services.Add<AmazonCommandQueue<StatusCommandHandler>>(o => o.Lifetime = ServiceLifetime.Singleton);
 
-	        services.Add<JournalDataStore>(o => o.Lifetime = ServiceLifetime.Scoped);
-	        services.Add<JournalEntryDataStore>(o => o.Lifetime = ServiceLifetime.Scoped);
+	        services.Add<JournalDataStore>(o => o.Lifetime = ServiceLifetime.Scoped)
+                .AddOptions<JournalTableOptions>()
+                .ConfigureTriple(o => o.ConnectionString = Configuration.GetConnectionString("JournalTable"));
+	        services.Add<JournalEntryDataStore>(o => o.Lifetime = ServiceLifetime.Scoped)
+                .AddOptions<JournalTableOptions>()
+                .ConfigureTriple(o => o.ConnectionString = Configuration.GetConnectionString("JournalTable"));
 
 	        services.AddHostedService<JournalEventWorker>();
         }

@@ -11,6 +11,7 @@ using Savvyio.Extensions.DependencyInjection;
 using Savvyio.Extensions.DependencyInjection.SimpleQueueService.Commands;
 using Savvyio.Extensions.Text.Json;
 using Wish.JournalAzureTableStorage;
+using Wish.Shared;
 using Wish.StatusCommandSvc.Handlers;
 
 namespace Wish.StatusCommandSvc
@@ -28,8 +29,8 @@ namespace Wish.StatusCommandSvc
 	        services.AddSavvyIO(o =>
 	        {
 		        o.EnableHandlerServicesDescriptor()
-			        .UseAutomaticDispatcherDiscovery()
-			        .UseAutomaticHandlerDiscovery()
+                    .UseAutomaticDispatcherDiscovery()
+                    .UseAutomaticHandlerDiscovery()
 			        .AddMediator<Mediator>();
 	        });
 
@@ -39,11 +40,13 @@ namespace Wish.StatusCommandSvc
 	        {
 		        o.Credentials = new BasicAWSCredentials(Configuration["AWS:IAM:AccessKey"], Configuration["AWS:IAM:SecretKey"]);
 		        o.Endpoint = RegionEndpoint.EUWest1;
-		        o.SourceQueue = new Uri($"https://sqs.eu-west-1.amazonaws.com/{Configuration["AWS:CallerIdentity"]}/wish-journal-status.fifo");
+		        o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/wish-journal-status.fifo");
 	        });
-	        services.Add<AmazonCommandQueue<StatusCommandHandler>>(o => o.Lifetime = ServiceLifetime.Scoped);
+	        services.Add<AmazonCommandQueue<StatusCommandHandler>>(o => o.Lifetime = ServiceLifetime.Singleton);
 
-	        services.Add<StatusDataStore>(o => o.Lifetime = ServiceLifetime.Scoped);
+	        services.Add<StatusDataStore>(o => o.Lifetime = ServiceLifetime.Scoped)
+                .AddOptions<StatusTableOptions>()
+                .ConfigureTriple(o => o.ConnectionString = Configuration.GetConnectionString("JournalTable"));
 
 			services.AddHostedService<StatusCommandWorker>();
 		}
