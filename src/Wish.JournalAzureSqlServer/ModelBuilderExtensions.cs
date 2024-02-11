@@ -78,19 +78,19 @@ namespace Wish.JournalAzureSqlServer
                     .HasColumnType("varchar(128)")
                     .IsRequired()
                     .HasConversion(coordinates => JsonFormatter.SerializeObject(coordinates, typeof(Coordinates), setup).ToEncodedString(null), 
-                        json => JsonFormatter.DeserializeObject<Coordinates>(json.ToStream(null), null));
+                        json => JsonFormatter.DeserializeObject<Coordinates>(json.ToStream(null)));
                 entity.Property(entry => entry.Location)
                     .HasColumnName("location")
                     .HasColumnType("varchar(1024)")
                     .IsRequired()
                     .HasConversion(location => JsonFormatter.SerializeObject(location, typeof(Location), setup).ToEncodedString(null), 
-                        json => JsonFormatter.DeserializeObject<Location>(json.ToStream(null), null));
+                        json => JsonFormatter.DeserializeObject<Location>(json.ToStream(null)));
                 entity.Property(entry => entry.Weather)
                     .HasColumnName("weather")
                     .HasColumnType("varchar(1024)")
                     .IsRequired()
                     .HasConversion(weather => JsonFormatter.SerializeObject(weather, typeof(Weather), setup).ToEncodedString(null), 
-                        json => JsonFormatter.DeserializeObject<Weather>(json.ToStream(null), null));
+                        json => JsonFormatter.DeserializeObject<Weather>(json.ToStream(null)));
                 entity.Property(entry => entry.Notes)
                     .HasColumnName("notes")
                     .HasColumnType("varchar(2048)")
