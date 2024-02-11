@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Data.Tables;
+using Cuemon;
 using Cuemon.AspNetCore.Http;
 using Cuemon.Extensions;
 using Cuemon.Threading;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Wish.JournalApplication;
 using Wish.JournalApplication.Projections;
 
@@ -16,7 +16,11 @@ namespace Wish.JournalAzureTableStorage
 {
     public class JournalEntryDataStore : TableClient, IJournalEntryDataStore
     {
-        public JournalEntryDataStore(IConfiguration configuration) : base(configuration.GetConnectionString("JournalTable"), "JournalEntryProjection")
+        public JournalEntryDataStore(JournalTableOptions options) : base(Validator.CheckParameter(() =>
+        {
+            Validator.ThrowIfInvalidOptions(options);
+            return options.ConnectionString;
+        }), "JournalEntryProjection")
         {
         }
 

@@ -1,14 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Cuemon;
+using Microsoft.EntityFrameworkCore;
 using Savvyio.Extensions.EFCore;
 
 namespace Wish.JournalAzureSqlServer
 {
     public class JournalDataSource : EfCoreDataSource
     {
-        public JournalDataSource(IConfiguration configuration) : base(new EfCoreDataSourceOptions
+        public JournalDataSource(JournalDataSourceOptions options) : base(new EfCoreDataSourceOptions
         {
-            ContextConfigurator = b => b.UseSqlServer(configuration.GetConnectionString("Journal")),
+            ContextConfigurator = b => b.UseSqlServer(Validator.CheckParameter(() =>
+            {
+                Validator.ThrowIfInvalidOptions(options);
+                return options.ConnectionString;
+            })),
             ModelConstructor = mb => mb.AddJournal()
         })
         {

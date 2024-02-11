@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Data.Tables;
+using Cuemon;
 using Cuemon.Extensions;
 using Cuemon.Threading;
-using Microsoft.Extensions.Configuration;
 using Wish.JournalApplication;
 using Wish.JournalApplication.Projections;
 
@@ -14,7 +14,11 @@ namespace Wish.JournalAzureTableStorage
 {
     public class StatusDataStore : TableClient, IStatusDataStore
     {
-        public StatusDataStore(IConfiguration configuration) : base(configuration.GetConnectionString("JournalTable"), "JournalStatus")
+        public StatusDataStore(StatusTableOptions options) : base(Validator.CheckParameter(() =>
+        {
+            Validator.ThrowIfInvalidOptions(options);
+            return options.ConnectionString;
+        }), "JournalStatus")
         {
         }
 
@@ -29,7 +33,8 @@ namespace Wish.JournalAzureTableStorage
                 Result = projection.Result,
                 Action = projection.Action,
                 Endpoint = projection.Endpoint,
-                EndpointRouteValue = projection.EndpointRouteValue
+                EndpointRouteValue = projection.EndpointRouteValue,
+                DurationTicks = projection.DurationInTicks
             };
             return AddEntityAsync(entity, options.CancellationToken);
         }
@@ -46,6 +51,7 @@ namespace Wish.JournalAzureTableStorage
                 entity.Value.Modified = projection.Modified;
                 entity.Value.Endpoint = projection.Endpoint;
                 entity.Value.EndpointRouteValue = projection.EndpointRouteValue;
+                entity.Value.DurationTicks = projection.DurationInTicks;
                 await UpdateEntityAsync(entity.Value, entity.Value.ETag, TableUpdateMode.Merge, options.CancellationToken).ConfigureAwait(false);
             }
         }
@@ -78,7 +84,8 @@ namespace Wish.JournalAzureTableStorage
                             Result = entity.Result,
                             Action = entity.Action,
                             Endpoint = entity.Endpoint?.ToLowerInvariant(),
-                            EndpointRouteValue = entity.EndpointRouteValue?.ToLowerInvariant()
+                            EndpointRouteValue = entity.EndpointRouteValue?.ToLowerInvariant(),
+                            DurationInTicks = entity.DurationTicks
                         };
                         if (options.Filter(dto)) { result.Add(dto); }
                     }

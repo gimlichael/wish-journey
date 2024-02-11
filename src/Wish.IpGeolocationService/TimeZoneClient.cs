@@ -5,23 +5,22 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cuemon.Extensions;
 using Cuemon.Extensions.Net.Http;
-using Microsoft.Extensions.Configuration;
 using Wish.Services;
 
 namespace Wish.IpGeolocationService
 {
     public class TimeZoneClient : ITimestampService
     {
-        private readonly IConfiguration _configuration;
+        private readonly TimeZoneClientOptions _options;
 
-        public TimeZoneClient(IConfiguration configuration)
+        public TimeZoneClient(TimeZoneClientOptions options)
         {
-            _configuration = configuration;
+            _options = options;
         }
 
         public async Task<Timestamp> GetTimestampAsync(Coordinates coordinates, CancellationToken cancellationToken = default)
         {
-            var timezoneApi = $"https://api.ipgeolocation.io/timezone?apiKey={_configuration["IpGeolocationApi"]}&lat={coordinates.Latitude.ToString("N", CultureInfo.InvariantCulture)}&long={coordinates.Longitude.ToString("N", CultureInfo.InvariantCulture)}".ToUri();
+            var timezoneApi = $"https://api.ipgeolocation.io/timezone?apiKey={_options.ApiKey}&lat={coordinates.Latitude.ToString("N", CultureInfo.InvariantCulture)}&long={coordinates.Longitude.ToString("N", CultureInfo.InvariantCulture)}".ToUri();
             var response = await timezoneApi.HttpGetAsync(cancellationToken).ConfigureAwait(false);
             using (var document = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false), cancellationToken: cancellationToken).ConfigureAwait(false))
             {
@@ -35,7 +34,7 @@ namespace Wish.IpGeolocationService
 
         public async Task<Timestamp> GetTimestampAsync(string ianaTimeZoneName, CancellationToken cancellationToken = default)
         {
-            var timezoneApi = $"https://api.ipgeolocation.io/timezone?apiKey={_configuration["IpGeolocationApi"]}&tz={ianaTimeZoneName}".ToUri();
+            var timezoneApi = $"https://api.ipgeolocation.io/timezone?apiKey={_options.ApiKey}&tz={ianaTimeZoneName}".ToUri();
             var response = await timezoneApi.HttpGetAsync(cancellationToken).ConfigureAwait(false);
             using (var document = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false), cancellationToken: cancellationToken).ConfigureAwait(false))
             {

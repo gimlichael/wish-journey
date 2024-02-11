@@ -5,14 +5,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cuemon.Extensions;
 using Cuemon.Extensions.Net.Http;
-using Microsoft.Extensions.Configuration;
 using Wish.Services;
 
 namespace Wish.WeatherTomorrowService
 {
     public class WeatherClient : IWeatherService
     {
-        private readonly IConfiguration _configuration;
+        private readonly WeatherClientOptions _options;
         private static readonly Dictionary<int, string> WeatherCodes = new() // https://docs.tomorrow.io/reference/data-layers-weather-codes
         {
             { 0, "Unknown" },
@@ -41,14 +40,14 @@ namespace Wish.WeatherTomorrowService
             { 8000, "Thunderstorm" }
         };
 
-        public WeatherClient(IConfiguration configuration)
+        public WeatherClient(WeatherClientOptions options)
         {
-            _configuration = configuration;
+            _options = options;
         }
 
         public async Task<Weather> GetWeatherAsync(Coordinates coordinates, CancellationToken cancellationToken = default)
         {
-            var weatherApi = $"https://api.tomorrow.io/v4/weather/realtime?location={coordinates.Latitude.ToString("N", CultureInfo.InvariantCulture)},{coordinates.Longitude.ToString("N", CultureInfo.InvariantCulture)}&units=metric&apikey={_configuration["TomorrowApi"]}".ToUri();
+            var weatherApi = $"https://api.tomorrow.io/v4/weather/realtime?location={coordinates.Latitude.ToString("N", CultureInfo.InvariantCulture)},{coordinates.Longitude.ToString("N", CultureInfo.InvariantCulture)}&units=metric&apikey={_options.ApiKey}".ToUri();
             var response = await weatherApi.HttpGetAsync(cancellationToken).ConfigureAwait(false);
             using (var document = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false), cancellationToken: cancellationToken).ConfigureAwait(false))
             {

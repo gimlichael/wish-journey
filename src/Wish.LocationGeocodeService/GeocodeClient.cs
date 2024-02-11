@@ -3,25 +3,26 @@ using System.Globalization;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Cuemon;
 using Cuemon.Extensions;
 using Cuemon.Extensions.Net.Http;
-using Microsoft.Extensions.Configuration;
 using Wish.Services;
 
 namespace Wish.LocationGeocodeService
 {
     public class GeocodeClient : ILocationService
     {
-        private readonly IConfiguration _configuration;
+        private readonly GeocodeClientOptions _options;
 
-        public GeocodeClient(IConfiguration configuration)
+        public GeocodeClient(GeocodeClientOptions options)
         {
-            _configuration = configuration;
+            Validator.ThrowIfInvalidOptions(options);
+            _options = options;
         }
 
         public async Task<Location> GetLocationAsync(Coordinates coordinates, CancellationToken cancellationToken = default)
         {
-            var locationApi = $"https://geocode.maps.co/reverse?lat={coordinates.Latitude.ToString("N", CultureInfo.InvariantCulture)}&lon={coordinates.Longitude.ToString("N", CultureInfo.InvariantCulture)}&api_key={_configuration["GeocodeApi"]}".ToUri();
+            var locationApi = $"https://geocode.maps.co/reverse?lat={coordinates.Latitude.ToString("N", CultureInfo.InvariantCulture)}&lon={coordinates.Longitude.ToString("N", CultureInfo.InvariantCulture)}&api_key={_options.ApiKey}".ToUri();
             await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
             var response = await locationApi.HttpGetAsync(cancellationToken).ConfigureAwait(false);
             using (var document = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false), cancellationToken: cancellationToken).ConfigureAwait(false))
