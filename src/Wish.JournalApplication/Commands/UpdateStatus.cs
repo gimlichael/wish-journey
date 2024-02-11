@@ -24,6 +24,8 @@ namespace Wish.JournalApplication.Commands
 
         public string EndpointRouteValue { get; set; }
 
+        public TimeSpan Duration { get; set; }
+
         public DateTime Modified { get; set; }
     }
 }

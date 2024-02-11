@@ -33,7 +33,16 @@ namespace Wish.StatusCommandSvc.Handlers
 				projection.Result = command.Result;
 				projection.Message = command.Message;
 				if (command.EndpointRouteValue != null) { projection.EndpointRouteValue = command.EndpointRouteValue; }
-			}
+
+                if (projection.DurationInTicks.HasValue)
+                {
+                    projection.DurationInTicks += command.Duration.Ticks;
+                }
+                else
+                {
+                    projection.DurationInTicks = command.Duration.Ticks;
+                }
+            }
 	        await _statusDataStore.UpdateAsync(projection).ConfigureAwait(false);
         }
 

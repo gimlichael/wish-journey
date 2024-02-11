@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Cuemon.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ using Wish.JournalApplication.Views;
 
 namespace Wish.JournalApi.Controllers.V1
 {
+	[Authorize]
     [ApiController]
     [Route("[controller]")]
     public class StatusController : ControllerBase

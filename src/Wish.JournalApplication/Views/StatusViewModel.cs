@@ -11,6 +11,8 @@ namespace Wish.JournalApplication.Views
 
         public StatusAction Action { get; set; }
 
+        public TimeSpan? Duration { get; set; }
+
         public DateTime Created { get; set; }
 
         public DateTime? Modified { get; set; }

@@ -38,5 +38,7 @@ namespace Wish.JournalAzureTableStorage
         public DateTime Created { get; set; }
 
         public DateTime? Modified { get; set; }
+
+        public long? DurationTicks { get; set; }
     }
 }

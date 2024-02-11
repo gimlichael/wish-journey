@@ -24,6 +24,8 @@ namespace Wish.JournalApplication.Projections
 
         public string EndpointRouteValue { get; set; }
 
+        public long? DurationInTicks { get; set; }
+
         public DateTime Created { get; set; }
 
         public DateTime? Modified { get; set; }
@@ -32,6 +34,7 @@ namespace Wish.JournalApplication.Projections
     public enum StatusResult
     {
         Pending,
+        Progressing,
         Completed,
         Failed
     }

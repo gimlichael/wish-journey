@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Savvyio;
 using Savvyio.Handlers;
 using Savvyio.Queries;
@@ -33,7 +34,10 @@ namespace Wish.JournalApi.Handlers
 		        Endpoint = projection.Endpoint,
 		        EndpointRouteValue = projection.EndpointRouteValue,
 		        Message = projection.Message,
-		        Result = projection.Result
+				Duration = projection.DurationInTicks.HasValue 
+                    ? new TimeSpan(projection.DurationInTicks.Value) 
+                    : null,
+                Result = projection.Result
 	        };
         }
     }

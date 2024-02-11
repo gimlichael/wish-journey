@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Cuemon.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +17,7 @@ using Wish.JournalApplication.Views;
 
 namespace Wish.JournalApi.Controllers.V1
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class JournalsController : ControllerBase
@@ -108,9 +109,7 @@ namespace Wish.JournalApi.Controllers.V1
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<JournalCollectionViewModel>>> List([FromQuery] int limit = int.MaxValue)
         {
-	        var profiler = await TimeMeasure.WithFuncAsync((_) => _mediator.QueryAsync(new ListJournal(HttpContext.User.Claims.OwnerIdOrDefault(), limit)));
-	        _logger.LogInformation("Profiling result of {nameOf}: {profiler}", nameof(ListJournal), profiler.Timer);
-            return Ok(profiler.Result);
+            return Ok(await _mediator.QueryAsync(new ListJournal(HttpContext.User.Claims.OwnerIdOrDefault(), limit)));
         }
         
         [HttpGet("{id}")]
@@ -118,9 +117,7 @@ namespace Wish.JournalApi.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<JournalViewModel>> Get([FromRoute] string id)
         {
-	        var profiler = await TimeMeasure.WithFuncAsync((_) => _mediator.QueryAsync(new GetJournal(HttpContext.User.Claims.OwnerIdOrDefault(), id)));
-            _logger.LogInformation("Profiling result of {nameOf}: {profiler}", nameof(GetJournal), profiler.Timer);
-			return Ok(profiler.Result);
+			return Ok(await _mediator.QueryAsync(new GetJournal(HttpContext.User.Claims.OwnerIdOrDefault(), id)));
         }
 
         [HttpPost("{id}/entries")]
@@ -145,7 +142,7 @@ namespace Wish.JournalApi.Controllers.V1
             await _mediator.CommitAsync(command).ConfigureAwait(false);
 
             _logger.LogInformation("{nameOf} was issued: {command}", nameof(CreateJournalEntry), command);
-            
+
             Response.Headers.RetryAfter = new RetryConditionHeaderValue(TimeSpan.FromSeconds(5)).ToString();
             return AcceptedAtAction("Get", "Status", new { correlationId = command.GetCorrelationId() });
         }
@@ -154,9 +151,7 @@ namespace Wish.JournalApi.Controllers.V1
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<JournalEntryCollectionViewModel>>> ListEntries([FromRoute] string id, [FromQuery] int limit = int.MaxValue)
         {
-	        var profiler = await TimeMeasure.WithFuncAsync((_) => _mediator.QueryAsync(new ListJournalEntries(HttpContext.User.Claims.OwnerIdOrDefault(), id, limit)));
-	        _logger.LogInformation("Profiling result of {nameOf}: {profiler}", nameof(ListJournalEntries), profiler.Timer);
-            return Ok(profiler.Result);
+            return Ok(await _mediator.QueryAsync(new ListJournalEntries(HttpContext.User.Claims.OwnerIdOrDefault(), id, limit)));
         }
 
         [HttpGet("{id}/entries/{entryId}")]
@@ -164,9 +159,7 @@ namespace Wish.JournalApi.Controllers.V1
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<JournalEntryViewModel>> GetEntry([FromRoute] string id, [FromRoute] string entryId)
         {
-	        var profiler = await TimeMeasure.WithFuncAsync((_) => _mediator.QueryAsync(new GetJournalEntry(HttpContext.User.Claims.OwnerIdOrDefault(), id, entryId)));
-	        _logger.LogInformation("Profiling result of {nameOf}: {profiler}", nameof(GetJournalEntry), profiler.Timer);
-            return Ok(profiler.Result);
+            return Ok(await _mediator.QueryAsync(new GetJournalEntry(HttpContext.User.Claims.OwnerIdOrDefault(), id, entryId)));
         }
 
         [HttpPut("{id}/entries/{entryId}")]
