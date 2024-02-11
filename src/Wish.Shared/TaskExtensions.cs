@@ -1,4 +1,8 @@
-﻿namespace Wish.Shared
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Wish.Shared
 {
 	public static class TaskExtensions
 	{

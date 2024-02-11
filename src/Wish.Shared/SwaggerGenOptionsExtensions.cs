@@ -1,4 +1,5 @@
-﻿using Cuemon.Net.Http;
+﻿using System;
+using Cuemon.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
