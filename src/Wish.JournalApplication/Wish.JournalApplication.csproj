@@ -5,13 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Savvyio.Commands" Version="2.0.0-preview.13" />
-    <PackageReference Include="Savvyio.EventDriven" Version="2.0.0-preview.13" />
-    <PackageReference Include="Savvyio.Extensions.DependencyInjection.Domain" Version="2.0.0-preview.13" />
-    <PackageReference Include="Savvyio.Extensions.Dispatchers" Version="2.0.0-preview.13" />
-    <PackageReference Include="Savvyio.Extensions.EFCore" Version="2.0.0-preview.13" />
-    <PackageReference Include="Savvyio.Queries" Version="2.0.0-preview.13" />
-    <PackageReference Include="Cuemon.AspNetCore.App" Version="8.1.0-preview" />
+    <PackageReference Include="Savvyio.Commands" Version="2.0.0" />
+    <PackageReference Include="Savvyio.EventDriven" Version="2.0.0" />
+    <PackageReference Include="Savvyio.Extensions.DependencyInjection.Domain" Version="2.0.0" />
+    <PackageReference Include="Savvyio.Extensions.Dispatchers" Version="2.0.0" />
+    <PackageReference Include="Savvyio.Extensions.EFCore" Version="2.0.0" />
+    <PackageReference Include="Savvyio.Queries" Version="2.0.0" />
+    <PackageReference Include="Cuemon.AspNetCore.App" Version="8.1.0" />
   </ItemGroup>
 
   <ItemGroup>

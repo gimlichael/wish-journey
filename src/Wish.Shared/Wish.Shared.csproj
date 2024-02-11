@@ -2,12 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cuemon.Core" Version="8.1.0-preview" />
+    <PackageReference Include="Cuemon.AspNetCore.Authentication" Version="8.1.0" />
+    <PackageReference Include="Cuemon.Core" Version="8.1.0" />
+    <PackageReference Include="Cuemon.AspNetCore" Version="8.1.0" />
+    <PackageReference Include="Cuemon.Extensions.AspNetCore" Version="8.1.0" />
+    <PackageReference Include="Cuemon.Extensions.DependencyInjection" Version="8.1.0" />
+    <PackageReference Include="Savvyio.App" Version="2.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
