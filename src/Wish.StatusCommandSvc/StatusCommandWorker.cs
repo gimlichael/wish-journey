@@ -16,11 +16,11 @@ namespace Wish.StatusCommandSvc
 	public class StatusCommandWorker : BackgroundService
 	{
 		private bool _applicationStopping = false;
-		private readonly IMediator _mediator;
-		private readonly IPointToPointChannel<ICommand, StatusCommandHandler> _commandQueue;
 		private readonly ILogger<StatusCommandWorker> _logger;
+        private readonly IHostEnvironment _environment;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-		public StatusCommandWorker(IMediator mediator, IPointToPointChannel<ICommand, StatusCommandHandler> commandQueue, ILogger<StatusCommandWorker> logger, IServiceProvider serviceProvider)
+        public StatusCommandWorker(ILogger<StatusCommandWorker> logger, IServiceProvider serviceProvider, IHostEnvironment environment, IServiceScopeFactory scopeFactory)
 		{
 			BootstrapperLifetime.OnApplicationStartedCallback = () =>
 			{
@@ -30,10 +30,10 @@ namespace Wish.StatusCommandSvc
 			{
 				_applicationStopping = true;
 			};
-			_mediator = mediator;
-			_commandQueue = commandQueue;
 			_logger = logger;
-		}
+            _environment = environment;
+            _scopeFactory = scopeFactory;
+        }
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
@@ -43,10 +43,13 @@ namespace Wish.StatusCommandSvc
 
 				try
 				{
-					await foreach (var message in _commandQueue.ReceiveAsync(o => o.CancellationToken = stoppingToken).ConfigureAwait(false))
+                    using var scope = _scopeFactory.CreateScope();
+					var commandQueue = scope.ServiceProvider.GetRequiredService<IPointToPointChannel<ICommand, StatusCommandHandler>>();
+                    await foreach (var message in commandQueue.ReceiveAsync(o => o.CancellationToken = stoppingToken).ConfigureAwait(false))
 					{
 						_logger.LogInformation("Processing: {message}", message);
-						await _mediator.CommitAsync(message.Data).ConfigureAwait(false);
+						var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        await mediator.CommitAsync(message.Data).ConfigureAwait(false);
 					}
 				}
 				catch (Exception e)
@@ -54,7 +57,10 @@ namespace Wish.StatusCommandSvc
 					_logger.LogError(e, e.Message);
 				}
 
-				await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                if (_environment.IsProduction())
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                }
 			}
 		}
 	}

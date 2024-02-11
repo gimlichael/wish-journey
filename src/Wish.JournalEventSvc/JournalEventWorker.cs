@@ -13,49 +13,55 @@ using Wish.JournalEventSvc.Handlers;
 
 namespace Wish.JournalEventSvc
 {
-	public class JournalEventWorker : BackgroundService
-	{
-		private bool _applicationStopping = false;
-		private readonly IMediator _mediator;
-		private readonly IPublishSubscribeChannel<IIntegrationEvent, JournalEventHandler> _eventBus;
-		private readonly ILogger<JournalEventWorker> _logger;
+    public class JournalEventWorker : BackgroundService
+    {
+        private bool _applicationStopping = false;
+        private readonly ILogger<JournalEventWorker> _logger;
+        private readonly IHostEnvironment _environment;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-		public JournalEventWorker(IMediator mediator, IPublishSubscribeChannel<IIntegrationEvent, JournalEventHandler> eventBus, ILogger<JournalEventWorker> logger, IServiceProvider serviceProvider)
-		{
-			BootstrapperLifetime.OnApplicationStartedCallback = () =>
-			{
-				logger.LogInformation("{registeredHandlers}", serviceProvider.GetService<HandlerServicesDescriptor>());
-			};
-			BootstrapperLifetime.OnApplicationStoppingCallback = () =>
-			{
-				_applicationStopping = true;
-			};
-			_mediator = mediator;
-			_eventBus = eventBus;
-			_logger = logger;
-		}
+        public JournalEventWorker(ILogger<JournalEventWorker> logger, IServiceProvider serviceProvider, IHostEnvironment environment, IServiceScopeFactory scopeFactory)
+        {
+            BootstrapperLifetime.OnApplicationStartedCallback = () =>
+            {
+                logger.LogInformation("{registeredHandlers}", serviceProvider.GetService<HandlerServicesDescriptor>());
+            };
+            BootstrapperLifetime.OnApplicationStoppingCallback = () =>
+            {
+                _applicationStopping = true;
+            };
+            _logger = logger;
+            _environment = environment;
+            _scopeFactory = scopeFactory;
+        }
 
-		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-		{
-			while (!stoppingToken.IsCancellationRequested)
-			{
-				if (_applicationStopping) { return; }
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                if (_applicationStopping) { return; }
 
-				try
-				{
-					await _eventBus.SubscribeAsync((message, _) =>
-					{
-						_logger.LogInformation("Processing: {message}", message);
-						return _mediator.PublishAsync(message.Data);
-					}).ConfigureAwait(false);
-				}
-				catch (Exception e)
-				{
-					_logger.LogError(e, e.Message);
-				}
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var eventBus = scope.ServiceProvider.GetService<IPublishSubscribeChannel<IIntegrationEvent, JournalEventHandler>>();
+                    await eventBus.SubscribeAsync((message, _) =>
+                    {
+                        _logger.LogInformation("Processing: {message}", message);
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        return mediator.PublishAsync(message.Data);
+                    }).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, e.Message);
+                }
 
-				await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
-			}
-		}
-	}
+                if (_environment.IsProduction())
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                }
+            }
+        }
+    }
 }
