@@ -8,7 +8,7 @@ Welcome to the Git-repository for the backend services proudly serving WhereIsHo
 
 - **Collaborators:**
   - Michael Mortensen
-  - Hong Hat
+  - Hong Tat
 
 - **Website URL:**
   - [WhereIsHong.com](https://whereishong.com)
@@ -16,6 +16,10 @@ Welcome to the Git-repository for the backend services proudly serving WhereIsHo
 - **Roles:**
   - Frontend: Hong Tat
   - Backend: Michael Mortensen
+
+## UI Technologies
+
+WhereIsHong.com is crafted with Docusaurus, delivering an interactive and visually captivating display of Hong's journey. The codebase is hosted on GitHub, and you can explore it [here](https://github.com/hongtatyew/where-is-hong).
 
 ## Backend Technologies
 
