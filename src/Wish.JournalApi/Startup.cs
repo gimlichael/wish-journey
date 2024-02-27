@@ -56,6 +56,7 @@ namespace Wish.JournalApi
 			services.AddApplicationInsightsTelemetry(o => o.ConnectionString = Configuration["Azure:ApplicationInsights:ConnectionString"]);
 
 			services
+                .AddRouting(o => o.LowercaseUrls = true)
 				.AddControllers(o =>
 				{
 					o.Filters.AddServerTiming();
