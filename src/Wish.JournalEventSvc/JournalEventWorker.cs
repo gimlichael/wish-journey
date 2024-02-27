@@ -18,9 +18,10 @@ namespace Wish.JournalEventSvc
         private bool _applicationStopping = false;
         private readonly ILogger<JournalEventWorker> _logger;
         private readonly IHostEnvironment _environment;
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IMediator _mediator;
+        private readonly IPublishSubscribeChannel<IIntegrationEvent, JournalEventHandler> _eventBus;
 
-        public JournalEventWorker(ILogger<JournalEventWorker> logger, IServiceProvider serviceProvider, IHostEnvironment environment, IServiceScopeFactory scopeFactory)
+        public JournalEventWorker(ILogger<JournalEventWorker> logger, IServiceProvider serviceProvider, IHostEnvironment environment, IMediator mediator, IPublishSubscribeChannel<IIntegrationEvent, JournalEventHandler> eventBus)
         {
             BootstrapperLifetime.OnApplicationStartedCallback = () =>
             {
@@ -32,7 +33,8 @@ namespace Wish.JournalEventSvc
             };
             _logger = logger;
             _environment = environment;
-            _scopeFactory = scopeFactory;
+            _mediator = mediator;
+            _eventBus = eventBus;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -43,13 +45,10 @@ namespace Wish.JournalEventSvc
 
                 try
                 {
-                    using var scope = _scopeFactory.CreateScope();
-                    var eventBus = scope.ServiceProvider.GetService<IPublishSubscribeChannel<IIntegrationEvent, JournalEventHandler>>();
-                    await eventBus.SubscribeAsync((message, _) =>
+                    await _eventBus.SubscribeAsync((message, _) =>
                     {
                         _logger.LogInformation("Processing: {message}", message);
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        return mediator.PublishAsync(message.Data);
+                        return _mediator.PublishAsync(message.Data);
                     }).ConfigureAwait(false);
                 }
                 catch (Exception e)

@@ -44,7 +44,7 @@ namespace Wish.StatusCommandSvc
 	        });
 	        services.Add<AmazonCommandQueue<StatusCommandHandler>>(o => o.Lifetime = ServiceLifetime.Singleton);
 
-	        services.Add<StatusDataStore>(o => o.Lifetime = ServiceLifetime.Scoped)
+	        services.Add<StatusDataStore>(o => o.Lifetime = ServiceLifetime.Singleton)
                 .AddOptions<StatusTableOptions>()
                 .ConfigureTriple(o => o.ConnectionString = Configuration.GetConnectionString("JournalTable"));
 

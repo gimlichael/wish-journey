@@ -48,7 +48,7 @@ namespace Wish.JournalCommandSvc
 		        o.Endpoint = RegionEndpoint.EUWest1;
 		        o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/wish-journal-command.fifo");
 	        });
-	        services.Add<AmazonCommandQueue<JournalCommandHandler>>(o => o.Lifetime = ServiceLifetime.Scoped);
+	        services.Add<AmazonCommandQueue<JournalCommandHandler>>(o => o.Lifetime = ServiceLifetime.Singleton);
 
 	        services.ConfigureTriple<AmazonCommandQueueOptions<StatusCommandHandler>>(o =>
 	        {
@@ -56,7 +56,7 @@ namespace Wish.JournalCommandSvc
 		        o.Endpoint = RegionEndpoint.EUWest1;
 		        o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/wish-journal-status.fifo");
 	        });
-	        services.Add<AmazonCommandQueue<StatusCommandHandler>>(o => o.Lifetime = ServiceLifetime.Scoped);
+	        services.Add<AmazonCommandQueue<StatusCommandHandler>>(o => o.Lifetime = ServiceLifetime.Singleton);
 
 	        services.ConfigureTriple<AmazonEventBusOptions<JournalEventHandler>>(o =>
 	        {
@@ -64,24 +64,24 @@ namespace Wish.JournalCommandSvc
 		        o.Endpoint = RegionEndpoint.EUWest1;
 		        o.SourceQueue = new Uri($"{Configuration["AWS:SourceQueue"]}/{Configuration["AWS:CallerIdentity"]}/wish-journal-event.fifo");
 	        });
-	        services.Add<AmazonEventBus<JournalEventHandler>>(o => o.Lifetime = ServiceLifetime.Scoped);
+	        services.Add<AmazonEventBus<JournalEventHandler>>(o => o.Lifetime = ServiceLifetime.Singleton);
 
-	        services.Add<JournalDataSource>(o => o.Lifetime = ServiceLifetime.Scoped)
+	        services.Add<JournalDataSource>(o => o.Lifetime = ServiceLifetime.Singleton)
                 .AddOptions<JournalDataSourceOptions>()
                 .ConfigureTriple(o =>
                 {
                     o.ConnectionString = Configuration.GetConnectionString("Journal");
                 });
-            services.Add<OwnerRepository>(o => o.Lifetime = ServiceLifetime.Scoped);
-	        services.Add<JournalRepository>(o => o.Lifetime = ServiceLifetime.Scoped);
-	        services.Add<JournalEntryRepository>(o => o.Lifetime = ServiceLifetime.Scoped);
-	        services.Add<GeocodeClient>(o => o.Lifetime = ServiceLifetime.Scoped)
+            services.Add<OwnerRepository>(o => o.Lifetime = ServiceLifetime.Singleton);
+	        services.Add<JournalRepository>(o => o.Lifetime = ServiceLifetime.Singleton);
+	        services.Add<JournalEntryRepository>(o => o.Lifetime = ServiceLifetime.Singleton);
+	        services.Add<GeocodeClient>(o => o.Lifetime = ServiceLifetime.Singleton)
 				.AddOptions<GeocodeClientOptions>()
 				.ConfigureTriple(o => o.ApiKey = Configuration["GeocodeApi"]);
-	        services.Add<WeatherClient>(o => o.Lifetime = ServiceLifetime.Scoped)
+	        services.Add<WeatherClient>(o => o.Lifetime = ServiceLifetime.Singleton)
                 .AddOptions<WeatherClientOptions>()
                 .ConfigureTriple(o => o.ApiKey = Configuration["TomorrowApi"]);
-	        services.Add<TimeZoneClient>(o => o.Lifetime = ServiceLifetime.Scoped)
+	        services.Add<TimeZoneClient>(o => o.Lifetime = ServiceLifetime.Singleton)
                 .AddOptions<TimeZoneClientOptions>()
                 .ConfigureTriple(o => o.ApiKey = Configuration["IpGeolocationApi"]);
 

@@ -18,9 +18,10 @@ namespace Wish.StatusCommandSvc
 		private bool _applicationStopping = false;
 		private readonly ILogger<StatusCommandWorker> _logger;
         private readonly IHostEnvironment _environment;
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IMediator _mediator;
+        private readonly IPointToPointChannel<ICommand, StatusCommandHandler> _queue;
 
-        public StatusCommandWorker(ILogger<StatusCommandWorker> logger, IServiceProvider serviceProvider, IHostEnvironment environment, IServiceScopeFactory scopeFactory)
+        public StatusCommandWorker(ILogger<StatusCommandWorker> logger, IServiceProvider serviceProvider, IHostEnvironment environment, IMediator mediator, IPointToPointChannel<ICommand, StatusCommandHandler> queue)
 		{
 			BootstrapperLifetime.OnApplicationStartedCallback = () =>
 			{
@@ -32,7 +33,8 @@ namespace Wish.StatusCommandSvc
 			};
 			_logger = logger;
             _environment = environment;
-            _scopeFactory = scopeFactory;
+            _mediator = mediator;
+            _queue = queue;
         }
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -43,13 +45,10 @@ namespace Wish.StatusCommandSvc
 
 				try
 				{
-                    using var scope = _scopeFactory.CreateScope();
-					var commandQueue = scope.ServiceProvider.GetRequiredService<IPointToPointChannel<ICommand, StatusCommandHandler>>();
-                    await foreach (var message in commandQueue.ReceiveAsync(o => o.CancellationToken = stoppingToken).ConfigureAwait(false))
+                    await foreach (var message in _queue.ReceiveAsync(o => o.CancellationToken = stoppingToken).ConfigureAwait(false))
 					{
 						_logger.LogInformation("Processing: {message}", message);
-						var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        await mediator.CommitAsync(message.Data).ConfigureAwait(false);
+                        await _mediator.CommitAsync(message.Data).ConfigureAwait(false);
 					}
 				}
 				catch (Exception e)

@@ -55,10 +55,10 @@ namespace Wish.JournalEventSvc
 	        });
 	        services.Add<AmazonCommandQueue<StatusCommandHandler>>(o => o.Lifetime = ServiceLifetime.Singleton);
 
-	        services.Add<JournalDataStore>(o => o.Lifetime = ServiceLifetime.Scoped)
+	        services.Add<JournalDataStore>(o => o.Lifetime = ServiceLifetime.Singleton)
                 .AddOptions<JournalTableOptions>()
                 .ConfigureTriple(o => o.ConnectionString = Configuration.GetConnectionString("JournalTable"));
-	        services.Add<JournalEntryDataStore>(o => o.Lifetime = ServiceLifetime.Scoped)
+	        services.Add<JournalEntryDataStore>(o => o.Lifetime = ServiceLifetime.Singleton)
                 .AddOptions<JournalTableOptions>()
                 .ConfigureTriple(o => o.ConnectionString = Configuration.GetConnectionString("JournalTable"));
 

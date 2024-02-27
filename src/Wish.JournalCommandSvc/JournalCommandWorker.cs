@@ -18,9 +18,10 @@ namespace Wish.JournalCommandSvc
         private bool _applicationStopping = false;
         private readonly ILogger<JournalCommandWorker> _logger;
         private readonly IHostEnvironment _environment;
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IMediator _mediator;
+        private readonly IPointToPointChannel<ICommand, JournalCommandHandler> _queue;
 
-        public JournalCommandWorker(ILogger<JournalCommandWorker> logger, IServiceProvider serviceProvider, IHostEnvironment environment, IServiceScopeFactory scopeFactory)
+        public JournalCommandWorker(ILogger<JournalCommandWorker> logger, IServiceProvider serviceProvider, IHostEnvironment environment, IMediator mediator, IPointToPointChannel<ICommand, JournalCommandHandler> queue)
         {
             BootstrapperLifetime.OnApplicationStartedCallback = () =>
             {
@@ -32,7 +33,8 @@ namespace Wish.JournalCommandSvc
             };
             _logger = logger;
             _environment = environment;
-            _scopeFactory = scopeFactory;
+            _mediator = mediator;
+            _queue = queue;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -43,16 +45,13 @@ namespace Wish.JournalCommandSvc
 
                 try
                 {
-                    using var scope = _scopeFactory.CreateScope();
-                    var commandQueue = scope.ServiceProvider.GetRequiredService<IPointToPointChannel<ICommand, JournalCommandHandler>>();
-                    await foreach (var message in commandQueue.ReceiveAsync(o =>
+                    await foreach (var message in _queue.ReceiveAsync(o =>
                                    {
                                        o.CancellationToken = stoppingToken;
                                    }).ConfigureAwait(false))
                     {
                         _logger.LogInformation("Processing: {message}", message);
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        await mediator.CommitAsync(message.Data).ConfigureAwait(false);
+                        await _mediator.CommitAsync(message.Data).ConfigureAwait(false);
                     }
                 }
                 catch (Exception e)
