@@ -26,7 +26,7 @@ namespace Wish.JournalApi.Handlers
         private async Task<StatusViewModel> GetStatusAsync(GetStatus query)
         {
 	        var projection = await _statusDataStore.FindAllAsync(o => o.Filter = dto => dto.CorrelationId == query.CorrelationId).SingleOrDefaultAsync().ConfigureAwait(false);
-	        return new StatusViewModel()
+	        return projection == null ? null : new StatusViewModel()
 	        {
 		        Created = projection.Created,
 		        Modified = projection.Modified,
